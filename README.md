@@ -9,8 +9,8 @@ If you installed synapse using the Matrix debian repos:
 ```
 git clone https://github.com/maxidor/matrix-synapse-rest-auth.git
 cd matrix-synapse-rest-auth
-sudo cp rest_auth_provider /usr/lib/python2.6/dist-packages/
-sudo cp rest_auth_provider /usr/lib/python2.7/dist-packages/
+sudo cp rest_auth_provider.py /usr/lib/python2.6/dist-packages/
+sudo cp rest_auth_provider.py /usr/lib/python2.7/dist-packages/
 ```
 
 ## Configure

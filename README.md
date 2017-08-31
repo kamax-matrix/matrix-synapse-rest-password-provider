@@ -48,4 +48,4 @@ The following JSON answer is expected:
 ```
 
 ## Support
-Contact @max:kamax.io on Matrix
+For community support, use the Matrix room [#matrix-synapse-rest-auth:kamax.io](https://matrix.to/#/#matrix-synapse-rest-auth:kamax.io)

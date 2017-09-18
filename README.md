@@ -5,8 +5,8 @@ This synapse authentication module (password provider) allows you to query ident
 - CRMs (Wordpress, ...)
 - self-hosted clouds (Nextcloud, ownCloud, ...)
 
-It is mainly used with [mxisd](https://github.com/kamax-io/mxisd), the Federated Matrix Identity Server, to delegate all matters of 
-Identity (directory, authentication, search) to it and offer a fully integrated solution.
+It is mainly used with [mxisd](https://github.com/kamax-io/mxisd), the Federated Matrix Identity Server, to provide
+missing features and offer a fully integrated solution (directory, authentication, search).
 
 ## Install
 Copy in whichever directory python2.x can pick it up as a module.  

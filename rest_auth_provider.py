@@ -57,17 +57,17 @@ class RestAuthProvider(object):
             logger.info("User not authenticated")
             defer.returnValue(False)
 
-        logger.info("User authenticated: %s", user_id)
+        localpart = user_id.split(":", 1)[0][1:]
+        logger.info("User %s authenticated", user_id)
 
         if not (yield self.account_handler.check_user_exists(user_id)):
             logger.info("User %s does not exist yet, creating...", user_id)
-            localpart = user_id.split(":", 1)[0][1:]
-
+            
             if localpart != localpart.lower() and self.regLower:
                 logger.info('User %s was not allowed to be created, enforcing lowercase policy', localpart)
                 defer.returnValue(False)
             
-            user_id = (yield self.account_handler.register(localpart=localpart))
+            user_id, access_token = (yield self.account_handler.register(localpart=localpart))
             logger.info("Registration based on REST data was successful for %s", user_id)
         else:
             logger.info("User %s already exists, registration skipped", user_id)

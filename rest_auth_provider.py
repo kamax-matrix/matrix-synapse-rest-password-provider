@@ -123,6 +123,9 @@ class RestAuthProvider(object):
         except TypeError:
             # we don't care
             pass
+        except KeyError:
+            # we don't care
+            pass
 
         return rest_config
 

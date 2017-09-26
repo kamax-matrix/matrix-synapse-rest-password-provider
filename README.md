@@ -52,10 +52,22 @@ Body as JSON UTF-8:
 The following JSON answer will be provided:
 ```
 {
-  "authentication": {
+  "auth": {
     "success": <boolean>
     "mxid": "@matrix.id.of.the.user:example.com"
-    "display_name": "String of the display name to set, optional"
+    "profile": {
+      "display_name": "John Doe",
+      "three_pids": [
+        {
+          "medium": "email",
+          "address": "john.doe@example.org"
+        },
+        {
+          "medium": "msisdn",
+          "address": "123456789"
+        }
+      ]
+    }
   }
 }
 ```

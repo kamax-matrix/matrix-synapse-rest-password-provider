@@ -24,11 +24,9 @@ from twisted.internet import defer
 import requests
 import json
 
-__version__ = "0.0.1"
 logger = logging.getLogger(__name__)
 
 class RestAuthProvider(object):
-    __version__ = "0.0.1"
 
     def __init__(self, config, account_handler):
         self.account_handler = account_handler
@@ -45,28 +43,58 @@ class RestAuthProvider(object):
         r = requests.post(self.endpoint + '/_matrix-internal/identity/v1/check_credentials', json = data)
         r.raise_for_status()
         r = r.json()
-        if not r["authentication"]:
+        if not r["auth"]:
             reason = "Invalid JSON data returned from REST endpoint"
             logger.warning(reason)
             raise RuntimeError(reason)
 
-        auth = r["authentication"]
+        auth = r["auth"]
         if not auth["success"]:
             logger.info("User not authenticated")
             defer.returnValue(False)
 
-        logger.info("User authenticated: %s", auth["mxid"])
+        logger.info("User authenticated: %s", user_id)
 
         if not (yield self.account_handler.check_user_exists(user_id)):
             logger.info("User %s does not exist yet, creating...", user_id)
             localpart = user_id.split(":", 1)[0][1:]
-            user_id, access_token = (yield self.account_handler.register(localpart=localpart))
+            user_id = (yield self.account_handler.register(localpart=localpart))
             logger.info("Registration based on REST data was successful for %s", user_id)
+        else:
+            logger.info("User %s already exists, registration skipped", user_id)
 
-            if auth["display_name"]:
-                store = self.account_handler.hs.get_handlers().profile_handler.store
-                yield store.set_profile_displayname(localpart, auth["display_name"])
-                logger.info("Name '%s' was set based on profile data", auth["display_name"]);
+        if auth["profile"]:
+            logger.info("Handling profile data")
+            profile = auth["profile"]
+
+            store = yield self.account_handler.hs.get_handlers().profile_handler.store
+            if "display_name" in profile:
+                logger.info("mmmm2")
+                display_name = profile["display_name"]
+                logger.info("Setting display name to '%s' based on profile data", display_name)
+                yield store.set_profile_displayname(localpart, display_name)
+            
+            if "three_pids" in profile:
+                logger.info("Handling 3PIDs")
+                for threepid in profile["three_pids"]:
+                    medium = threepid["medium"].lower()
+                    address = threepid["address"].lower()
+                    logger.info("Looking for 3PID %s:%s in user profile", medium, address)
+
+                    validated_at = self.account_handler.hs.get_clock().time_msec()
+                    if not (yield store.get_user_id_by_threepid(medium, address)):
+                        logger.info("3PID is not present, adding")
+                        yield store.user_add_threepid(
+                            user_id,
+                            medium,
+                            address,
+                            validated_at,
+                            validated_at
+                        )
+                    else:
+                        logger.info("3PID is present, skipping")
+        else:
+            logger.info("No profile data")
 
         defer.returnValue(True)
 

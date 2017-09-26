@@ -26,9 +26,16 @@ password_providers:
   - module: "rest_auth_provider.RestAuthProvider"
     config:
       endpoint: "http://change.me.example.com:12345"
+      policy:
+        registration:
+          username:
+            enforceLowercase: false
 ```
 
 Replace the `endpoint` value with the appropriate value.
+
+If you would like to avoid user creating account with upper case letter in their usernames,
+use the `enforceLowercase` config item.
 
 ## Use
 1. Install, configure, restart synapse

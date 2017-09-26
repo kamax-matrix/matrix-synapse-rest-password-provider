@@ -35,6 +35,10 @@ class RestAuthProvider(object):
             raise RuntimeError('Missing endpoint config')
 
         self.endpoint = config.endpoint
+        self.regLower = config.regLower
+        
+        logger.info('Endpoint: %s', self.endpoint)
+        logger.info('Enforce lowercase username during registration: %s', self.regLower)
 
     @defer.inlineCallbacks
     def check_password(self, user_id, password):
@@ -58,6 +62,11 @@ class RestAuthProvider(object):
         if not (yield self.account_handler.check_user_exists(user_id)):
             logger.info("User %s does not exist yet, creating...", user_id)
             localpart = user_id.split(":", 1)[0][1:]
+
+            if localpart != localpart.lower() and self.regLower:
+                logger.info('User %s was not allowed to be created, enforcing lowercase policy', localpart)
+                defer.returnValue(False)
+            
             user_id = (yield self.account_handler.register(localpart=localpart))
             logger.info("Registration based on REST data was successful for %s", user_id)
         else:
@@ -69,7 +78,6 @@ class RestAuthProvider(object):
 
             store = yield self.account_handler.hs.get_handlers().profile_handler.store
             if "display_name" in profile:
-                logger.info("mmmm2")
                 display_name = profile["display_name"]
                 logger.info("Setting display name to '%s' based on profile data", display_name)
                 yield store.set_profile_displayname(localpart, display_name)
@@ -104,10 +112,18 @@ class RestAuthProvider(object):
         _require_keys(config, ["endpoint"])
 
         class _RestConfig(object):
-            pass
+            endpoint = ''
+            regLower = False
 
         rest_config = _RestConfig()
         rest_config.endpoint = config["endpoint"]
+
+        try:
+            rest_config.regLower = config['policy']['registration']['username']['enforceLowercase']
+        except TypeError:
+            # we don't care
+            pass
+
         return rest_config
 
 def _require_keys(config, required):

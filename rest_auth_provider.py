@@ -66,7 +66,7 @@ class RestAuthProvider(object):
             logger.info("User %s does not exist yet, creating...", user_id)
             
             if localpart != localpart.lower() and self.regLower:
-                logger.info('User %s was not allowed to be created, enforcing lowercase policy', localpart)
+                logger.info('User %s was cannot be created due to username lowercase policy', localpart)
                 defer.returnValue(False)
             
             user_id, access_token = (yield self.account_handler.register(localpart=localpart))
@@ -118,7 +118,7 @@ class RestAuthProvider(object):
 
         class _RestConfig(object):
             endpoint = ''
-            regLower = False
+            regLower = True
             setNameOnRegister = True
             setNameOnLogin = False
 

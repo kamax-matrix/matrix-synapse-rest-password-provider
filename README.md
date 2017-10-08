@@ -34,18 +34,17 @@ Set `endpoint` to the appropriate value.
 
 ## Next steps
 ### Lowercase username enforcement
-If you would like to avoid user creating accounts with upper case letter in their usernames,
-use the `enforceLowercase` config item.
+To avoid creating users accounts with uppercase characters in their usernames and running into known
+issues regarding case sensitivity in synapse, attempting to login with such username will fail.
 
-It is highly recommended to enable this option to avoid nasty case sensitivity bugs and invites
-management on a day-to-day basis.
+It is highly recommended to keep this feature enable, but in case you would like to disable it:
 ```
 [...]
     config:
       policy:
         registration:
           username:
-            enforceLowercase: True
+            enforceLowercase: False
 ```
 
 ### Profile auto-fill

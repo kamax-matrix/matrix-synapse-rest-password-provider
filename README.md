@@ -15,7 +15,6 @@ If you installed synapse using the Matrix debian repos:
 ```
 git clone https://github.com/maxidor/matrix-synapse-rest-auth.git
 cd matrix-synapse-rest-auth
-sudo cp rest_auth_provider.py /usr/lib/python2.6/dist-packages/
 sudo cp rest_auth_provider.py /usr/lib/python2.7/dist-packages/
 ```
 
@@ -26,20 +25,48 @@ password_providers:
   - module: "rest_auth_provider.RestAuthProvider"
     config:
       endpoint: "http://change.me.example.com:12345"
-      policy:
-        registration:
-          username:
-            enforceLowercase: false
 ```
-
-Replace the `endpoint` value with the appropriate value.
-
-If you would like to avoid user creating account with upper case letter in their usernames,
-use the `enforceLowercase` config item.
+Set `endpoint` to the appropriate value.
 
 ## Use
 1. Install, configure, restart synapse
 2. Try to login with a valid username and password for the endpoint configured
+
+## Next steps
+### Lowercase username enforcement
+If you would like to avoid user creating accounts with upper case letter in their usernames,
+use the `enforceLowercase` config item.
+
+It is highly recommended to enable this option to avoid nasty case sensitivity bugs and invites
+management on a day-to-day basis.
+```
+[...]
+    config:
+      policy:
+        registration:
+          username:
+            enforceLowercase: True
+```
+
+### Profile auto-fill
+By default, on first login, the display name is set to the one returned by the backend.  
+If none is given, the display name is not set.  
+Upon subsequent login, the display name is not changed.
+
+If you would like to change the behaviour, you can use the following configuration items:
+```
+[...]
+    config:
+      policy:
+        registration:
+          profile:
+            name: True
+        login:
+          profile:
+            name: False
+```
+
+3PIDs received from the backend are merged with the ones already linked to the account.
 
 ## Integrate
 To use this module with your backend, you will need to implement a single REST endpoint:
@@ -80,4 +107,4 @@ The following JSON answer will be provided:
 ```
 
 ## Support
-For community support, use the Matrix room [#matrix-synapse-rest-auth:kamax.io](https://matrix.to/#/#matrix-synapse-rest-auth:kamax.io)
+For community support, visit our Matrix room [#matrix-synapse-rest-auth:kamax.io](https://matrix.to/#/#matrix-synapse-rest-auth:kamax.io)

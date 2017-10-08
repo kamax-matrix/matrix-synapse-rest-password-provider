@@ -36,6 +36,7 @@ class RestAuthProvider(object):
 
         self.endpoint = config.endpoint
         self.regLower = config.regLower
+        self.config = config
         
         logger.info('Endpoint: %s', self.endpoint)
         logger.info('Enforce lowercase username during registration: %s', self.regLower)
@@ -60,6 +61,7 @@ class RestAuthProvider(object):
         localpart = user_id.split(":", 1)[0][1:]
         logger.info("User %s authenticated", user_id)
 
+        registration = False
         if not (yield self.account_handler.check_user_exists(user_id)):
             logger.info("User %s does not exist yet, creating...", user_id)
             
@@ -68,6 +70,7 @@ class RestAuthProvider(object):
                 defer.returnValue(False)
             
             user_id, access_token = (yield self.account_handler.register(localpart=localpart))
+            registration = True
             logger.info("Registration based on REST data was successful for %s", user_id)
         else:
             logger.info("User %s already exists, registration skipped", user_id)
@@ -77,10 +80,12 @@ class RestAuthProvider(object):
             profile = auth["profile"]
 
             store = yield self.account_handler.hs.get_handlers().profile_handler.store
-            if "display_name" in profile:
+            if "display_name" in profile and ((registration and self.config.setNameOnRegister) or (self.config.setNameOnLogin)):
                 display_name = profile["display_name"]
                 logger.info("Setting display name to '%s' based on profile data", display_name)
                 yield store.set_profile_displayname(localpart, display_name)
+            else:
+                logger.info("Display name was not set because it was not given or policy restricted it")
             
             if "three_pids" in profile:
                 logger.info("Handling 3PIDs")
@@ -114,12 +119,32 @@ class RestAuthProvider(object):
         class _RestConfig(object):
             endpoint = ''
             regLower = False
+            setNameOnRegister = True
+            setNameOnLogin = False
 
         rest_config = _RestConfig()
         rest_config.endpoint = config["endpoint"]
 
         try:
             rest_config.regLower = config['policy']['registration']['username']['enforceLowercase']
+        except TypeError:
+            # we don't care
+            pass
+        except KeyError:
+            # we don't care
+            pass
+
+        try:
+            rest_config.setNameOnRegister = config['policy']['registration']['profile']['name']
+        except TypeError:
+            # we don't care
+            pass
+        except KeyError:
+            # we don't care
+            pass
+        
+        try:
+            rest_config.setNameOnLogin = config['policy']['login']['profile']['name']
         except TypeError:
             # we don't care
             pass

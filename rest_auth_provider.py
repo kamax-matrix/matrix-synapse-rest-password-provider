@@ -79,7 +79,7 @@ class RestAuthProvider(object):
             logger.info("Handling profile data")
             profile = auth["profile"]
 
-            store = yield self.account_handler.hs.get_handlers().profile_handler.store
+            store = yield self.account_handler.hs.get_profile_handler().store
             if "display_name" in profile and ((registration and self.config.setNameOnRegister) or (self.config.setNameOnLogin)):
                 display_name = profile["display_name"]
                 logger.info("Setting display name to '%s' based on profile data", display_name)

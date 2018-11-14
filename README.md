@@ -5,7 +5,7 @@ This synapse authentication module (password provider) allows you to query ident
 - CRMs (Wordpress, ...)
 - self-hosted clouds (Nextcloud, ownCloud, ...)
 
-It is mainly used with [mxisd](https://github.com/kamax-io/mxisd), the Federated Matrix Identity Server, to provide
+It is mainly used with [mxisd](https://github.com/kamax-matrix/mxisd), the Federated Matrix Identity Server, to provide
 missing features and offer a fully integrated solution (directory, authentication, search).
 
 ## Install
@@ -13,9 +13,7 @@ Copy in whichever directory python2.x can pick it up as a module.
 
 If you installed synapse using the Matrix debian repos:
 ```
-git clone https://github.com/maxidor/matrix-synapse-rest-auth.git
-cd matrix-synapse-rest-auth
-sudo cp rest_auth_provider.py /usr/lib/python2.7/dist-packages/
+sudo curl https://raw.githubusercontent.com/kamax-matrix/matrix-synapse-rest-auth/master/rest_auth_provider.py -o /usr/lib/python2.7/dist-packages/
 ```
 
 ## Configure
@@ -26,7 +24,7 @@ password_providers:
     config:
       endpoint: "http://change.me.example.com:12345"
 ```
-Set `endpoint` to the appropriate value.
+Set `endpoint` to the value documented with the endpoint provider.
 
 ## Use
 1. Install, configure, restart synapse
@@ -34,6 +32,8 @@ Set `endpoint` to the appropriate value.
 
 ## Next steps
 ### Lowercase username enforcement
+**NOTE**: This is no longer relevant as synapse natively enforces lowercase.
+
 To avoid creating users accounts with uppercase characters in their usernames and running into known
 issues regarding case sensitivity in synapse, attempting to login with such username will fail.
 
@@ -44,7 +44,7 @@ It is highly recommended to keep this feature enable, but in case you would like
       policy:
         registration:
           username:
-            enforceLowercase: False
+            enforceLowercase: false
 ```
 
 ### Profile auto-fill
@@ -59,10 +59,10 @@ If you would like to change the behaviour, you can use the following configurati
       policy:
         registration:
           profile:
-            name: True
+            name: true
         login:
           profile:
-            name: False
+            name: false
 ```
 
 3PIDs received from the backend are merged with the ones already linked to the account.

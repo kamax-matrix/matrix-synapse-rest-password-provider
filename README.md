@@ -9,6 +9,15 @@ It is mainly used with [mxisd](https://github.com/kamax-matrix/mxisd), the Feder
 missing features and offer a fully integrated solution (directory, authentication, search).
 
 ## Install
+### From Synapse v0.34.0/py3
+Copy in whichever directory python3.x can pick it up as a module.  
+
+If you installed synapse using the Matrix debian repos:
+```
+sudo curl https://raw.githubusercontent.com/kamax-matrix/matrix-synapse-rest-auth/master/rest_auth_provider.py -o /opt/venvs/matrix-synapse/lib/python3.5/site-packages/
+```
+
+### Before Synapse v0.34.0/py3 or any py2-based release
 Copy in whichever directory python2.x can pick it up as a module.  
 
 If you installed synapse using the Matrix debian repos:

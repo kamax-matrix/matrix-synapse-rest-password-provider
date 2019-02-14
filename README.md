@@ -14,7 +14,7 @@ Copy in whichever directory python3.x can pick it up as a module.
 
 If you installed synapse using the Matrix debian repos:
 ```
-sudo curl https://raw.githubusercontent.com/kamax-matrix/matrix-synapse-rest-auth/master/rest_auth_provider.py -o /opt/venvs/matrix-synapse/lib/python3.5/site-packages/
+sudo curl https://raw.githubusercontent.com/kamax-matrix/matrix-synapse-rest-auth/master/rest_auth_provider.py -o /opt/venvs/matrix-synapse/lib/python3.5/site-packages/rest_auth_provider.py
 ```
 
 ### Before Synapse v0.34.0/py3 or any py2-based release
@@ -22,7 +22,7 @@ Copy in whichever directory python2.x can pick it up as a module.
 
 If you installed synapse using the Matrix debian repos:
 ```
-sudo curl https://raw.githubusercontent.com/kamax-matrix/matrix-synapse-rest-auth/master/rest_auth_provider.py -o /usr/lib/python2.7/dist-packages/
+sudo curl https://raw.githubusercontent.com/kamax-matrix/matrix-synapse-rest-auth/master/rest_auth_provider.py -o /usr/lib/python2.7/dist-packages/rest_auth_provider.py
 ```
 
 ## Configure
@@ -77,7 +77,7 @@ If you would like to change the behaviour, you can use the following configurati
 3PIDs received from the backend are merged with the ones already linked to the account.
 
 ## Integrate
-To use this module with your backend, you will need to implement a single REST endpoint:
+To use this module with your back-end, you will need to implement a single REST endpoint:
 
 Path: `/_matrix-internal/identity/v1/check_credentials`  
 Method: POST  

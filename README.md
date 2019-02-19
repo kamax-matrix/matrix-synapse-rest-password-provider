@@ -1,5 +1,13 @@
-# HTTP JSON REST Authenticator module for synapse
-This synapse authentication module (password provider) allows you to query identity data in existing webapps, like:
+# Synapse REST Password provider
+- [Overview](#overview)
+- [Install](#install)
+- [Configure](#configure)
+- [Integrate](#integrate)
+- [Support](#support)
+  
+## Overview
+This synapse's password provider allows you to validate a password for a given username and return a user profile using
+an existing backend, like:
 - Forums (phpBB, Discourse, etc.)
 - Custom Identity stores (Keycloak, ...)
 - CRMs (Wordpress, ...)
@@ -7,6 +15,10 @@ This synapse authentication module (password provider) allows you to query ident
 
 It is mainly used with [mxisd](https://github.com/kamax-matrix/mxisd), the Federated Matrix Identity Server, to provide
 missing features and offer a fully integrated solution (directory, authentication, search).
+
+**NOTE:** This module doesn't provide direct integration with any backend. If you do not use mxisd, you will need to write
+your own backend, following the [Integration section](#integrate). This module simply translate an anthentication result
+and profile information into actionables in synapse, and adapt your user profile with what is given.
 
 ## Install
 ### From Synapse v0.34.0/py3
@@ -16,6 +28,7 @@ If you installed synapse using the Matrix debian repos:
 ```
 sudo curl https://raw.githubusercontent.com/kamax-matrix/matrix-synapse-rest-auth/master/rest_auth_provider.py -o /opt/venvs/matrix-synapse/lib/python3.5/site-packages/rest_auth_provider.py
 ```
+If the command fail, double check that the python version still matches. If not, please let us know by opening an issue.
 
 ### Before Synapse v0.34.0/py3 or any py2-based release
 Copy in whichever directory python2.x can pick it up as a module.  
@@ -24,10 +37,11 @@ If you installed synapse using the Matrix debian repos:
 ```
 sudo curl https://raw.githubusercontent.com/kamax-matrix/matrix-synapse-rest-auth/master/rest_auth_provider.py -o /usr/lib/python2.7/dist-packages/rest_auth_provider.py
 ```
+If the command fail, double check that the python version still matches. If not, please let us know by opening an issue.
 
 ## Configure
 Add or amend the `password_providers` entry like so:
-```
+```yaml
 password_providers:
   - module: "rest_auth_provider.RestAuthProvider"
     config:
@@ -47,8 +61,7 @@ To avoid creating users accounts with uppercase characters in their usernames an
 issues regarding case sensitivity in synapse, attempting to login with such username will fail.
 
 It is highly recommended to keep this feature enable, but in case you would like to disable it:
-```
-[...]
+```yaml
     config:
       policy:
         registration:
@@ -62,8 +75,7 @@ If none is given, the display name is not set.
 Upon subsequent login, the display name is not changed.
 
 If you would like to change the behaviour, you can use the following configuration items:
-```
-[...]
+```yaml
     config:
       policy:
         registration:
@@ -90,7 +102,7 @@ To use this module with your back-end, you will need to implement a single REST 
 Path: `/_matrix-internal/identity/v1/check_credentials`  
 Method: POST  
 Body as JSON UTF-8:
-```
+```json
 {
   "user": {
     "id": "@matrix.id.of.the.user:example.com",
@@ -99,12 +111,12 @@ Body as JSON UTF-8:
 }
 ```
 
-The following JSON answer will be provided:
-```
+If the credentials are accepted, the following JSON answer will be provided:
+```json
 {
   "auth": {
-    "success": <boolean>
-    "mxid": "@matrix.id.of.the.user:example.com"
+    "success": true,
+    "mxid": "@matrix.id.of.the.user:example.com",
     "profile": {
       "display_name": "John Doe",
       "three_pids": [
@@ -118,6 +130,18 @@ The following JSON answer will be provided:
         }
       ]
     }
+  }
+}
+```
+`auth.profile` and any sub-key are optional.
+
+---
+
+If the credentials are refused, the following JSON answer will be provided:
+```json
+{
+  "auth": {
+    "success": false
   }
 }
 ```

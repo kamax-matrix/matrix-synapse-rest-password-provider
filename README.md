@@ -75,6 +75,14 @@ If you would like to change the behaviour, you can use the following configurati
 ```
 
 3PIDs received from the backend are merged with the ones already linked to the account.
+If you would like to change this behaviour, you can use the following configuration item:
+```yaml
+    config:
+      policy:
+        all:
+          threepid:
+            update: false
+```
 
 ## Integrate
 To use this module with your back-end, you will need to implement a single REST endpoint:

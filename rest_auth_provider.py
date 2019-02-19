@@ -87,25 +87,28 @@ class RestAuthProvider(object):
             else:
                 logger.info("Display name was not set because it was not given or policy restricted it")
             
-            if "three_pids" in profile:
-                logger.info("Handling 3PIDs")
-                for threepid in profile["three_pids"]:
-                    medium = threepid["medium"].lower()
-                    address = threepid["address"].lower()
-                    logger.info("Looking for 3PID %s:%s in user profile", medium, address)
+            if (self.config.updateThreepid):
+                if "three_pids" in profile:
+                    logger.info("Handling 3PIDs")
+                    for threepid in profile["three_pids"]:
+                        medium = threepid["medium"].lower()
+                        address = threepid["address"].lower()
+                        logger.info("Looking for 3PID %s:%s in user profile", medium, address)
 
-                    validated_at = self.account_handler.hs.get_clock().time_msec()
-                    if not (yield store.get_user_id_by_threepid(medium, address)):
-                        logger.info("3PID is not present, adding")
-                        yield store.user_add_threepid(
-                            user_id,
-                            medium,
-                            address,
-                            validated_at,
-                            validated_at
-                        )
-                    else:
-                        logger.info("3PID is present, skipping")
+                        validated_at = self.account_handler.hs.get_clock().time_msec()
+                        if not (yield store.get_user_id_by_threepid(medium, address)):
+                            logger.info("3PID is not present, adding")
+                            yield store.user_add_threepid(
+                                user_id,
+                                medium,
+                                address,
+                                validated_at,
+                                validated_at
+                            )
+                        else:
+                            logger.info("3PID is present, skipping")
+            else:
+                logger.info("3PIDs were not updated due to policy")
         else:
             logger.info("No profile data")
 
@@ -121,6 +124,7 @@ class RestAuthProvider(object):
             regLower = True
             setNameOnRegister = True
             setNameOnLogin = False
+            updateThreepid = True
 
         rest_config = _RestConfig()
         rest_config.endpoint = config["endpoint"]
@@ -145,6 +149,15 @@ class RestAuthProvider(object):
         
         try:
             rest_config.setNameOnLogin = config['policy']['login']['profile']['name']
+        except TypeError:
+            # we don't care
+            pass
+        except KeyError:
+            # we don't care
+            pass
+
+        try:
+            rest_config.updateThreepid = config['policy']['all']['threepid']['update']
         except TypeError:
             # we don't care
             pass

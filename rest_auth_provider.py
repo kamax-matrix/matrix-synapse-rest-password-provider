@@ -90,9 +90,12 @@ class RestAuthProvider(object):
             if (self.config.updateThreepid):
                 if "three_pids" in profile:
                     logger.info("Handling 3PIDs")
+
+                    external_3pids = []
                     for threepid in profile["three_pids"]:
                         medium = threepid["medium"].lower()
                         address = threepid["address"].lower()
+                        external_3pids.append({"medium": medium, "address": address})
                         logger.info("Looking for 3PID %s:%s in user profile", medium, address)
 
                         validated_at = self.account_handler.hs.get_clock().time_msec()
@@ -107,6 +110,20 @@ class RestAuthProvider(object):
                             )
                         else:
                             logger.info("3PID is present, skipping")
+
+                    if (self.config.replaceThreepid):
+                        for threepid in (yield store.user_get_threepids(user_id)):
+                            medium = threepid["medium"].lower()
+                            address = threepid["address"].lower()
+                            if {"medium": medium, "address": address} not in external_3pids:
+                                logger.info("3PID is not present in external datastore, deleting")
+                                yield store.user_delete_threepid(
+                                    user_id,
+                                    medium,
+                                    address
+                                )
+
+
             else:
                 logger.info("3PIDs were not updated due to policy")
         else:
@@ -125,6 +142,7 @@ class RestAuthProvider(object):
             setNameOnRegister = True
             setNameOnLogin = False
             updateThreepid = True
+            replaceThreepid = False
 
         rest_config = _RestConfig()
         rest_config.endpoint = config["endpoint"]
@@ -165,6 +183,15 @@ class RestAuthProvider(object):
             # we don't care
             pass
 
+        try:
+            rest_config.replaceThreepid = config['policy']['all']['threepid']['replace']
+        except TypeError:
+            # we don't care
+            pass
+        except KeyError:
+            # we don't care
+            pass
+
         return rest_config
 
 def _require_keys(config, required):
@@ -175,4 +202,3 @@ def _require_keys(config, required):
                 ", ".join(missing)
             )
         )
-

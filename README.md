@@ -87,14 +87,16 @@ If you would like to change the behaviour, you can use the following configurati
 ```
 
 3PIDs received from the backend are merged with the ones already linked to the account.
-If you would like to change this behaviour, you can use the following configuration item:
+If you would like to change this behaviour, you can use the following configuration items:
 ```yaml
     config:
       policy:
         all:
           threepid:
             update: false
+            replace: false
 ```
+If update is set to `false`, the 3PIDs will not be changed at all. If replace is set to `true`, all 3PIDs not available in the backend anymore will be deleted from synapse.
 
 ## Integrate
 To use this module with your back-end, you will need to implement a single REST endpoint:

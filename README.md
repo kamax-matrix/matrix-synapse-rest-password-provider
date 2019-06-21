@@ -4,10 +4,15 @@
 - [Configure](#configure)
 - [Integrate](#integrate)
 - [Support](#support)
-  
+---
+
+**This project is no longer maintained.**
+
+---
+
 ## Overview
-This synapse's password provider allows you to validate a password for a given username and return a user profile using
-an existing backend, like:
+This synapse's password provider allows you to validate a password for a given username and return a user profile using an existing backend, like:
+
 - Forums (phpBB, Discourse, etc.)
 - Custom Identity stores (Keycloak, ...)
 - CRMs (Wordpress, ...)
@@ -147,6 +152,3 @@ If the credentials are refused, the following JSON answer will be provided:
   }
 }
 ```
-
-## Support
-For community support, visit our Matrix room [#matrix-synapse-rest-auth:kamax.io](https://matrix.to/#/#matrix-synapse-rest-auth:kamax.io)
